@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulaire</title>
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Ajouter un Utilisateur</h2>
+    <form action="#" method="post" id="userForm">
+        <div class="form-group">
+            <label for="matricule">Matricule</label>
+            <input type="text" id="matricule" name="matricule" placeholder="Entrez votre matricule" required>
+          </div>  
+      <div class="form-group">
+        <label for="prenom">Prénom</label>
+        <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prénom" required>
+      </div>
+      <div class="form-group">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" required>
+      </div>
+      <div class="form-group">
+        <label for="filiere">Filiere</label>
+        <input type="text" id="filiere" name="filiere" placeholder="Entrez votre filiere" required>
+      </div>
+      <div class="form-group">
+        <label for="niveau">Niveau</label>
+        <input type="text" id="niveau" name="niveau" placeholder="Entrez votre niveau" required>
+      </div>
+      <button type="submit" class="btn" id="submit">Add</button>
+    </form>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
