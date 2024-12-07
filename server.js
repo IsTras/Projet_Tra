@@ -1,50 +1,136 @@
-const express = require('express'); 
-const mysql = require('mysql2');
-const bodyparser = require('body-parser');
-const path = require('path');
+const express = require("express");
+const mysql = require("mysql2");
+const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
+const path = require("path");
+
 const app = express();
+const PORT = 3000;
 
-//Fixation du port
-const port = 3000;
-//Configuration des parametres de connexion mysql
-const con = mysql.createConnection({
-    host: 'localhost',     
-    user: 'root', 
-    password: '',
-    database: 'nodebd',
-  });
+// Configuration de la base de données
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "gestion_utilisateurs",
+});
 
-  con.connect((err) => {
-    if (err) {
-      console.error('Erreur de connexion :', err.message);
-      return;
+// Connexion à la base de données
+db.connect((err) => {
+    if (err) throw err;
+    console.log("Connecté à la base de données MySQL");
+});
+
+// Middleware
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public"))); // Servir les fichiers statiques
+
+// Route principale
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+// Routes API
+
+// Inscription
+app.post("/api/register", async (req, res) => {
+    const { prenom, nom, email, password, role = "user" } = req.body;
+    if (!prenom || !nom || !email || !password) {
+        return res.status(400).json({ message: "Tous les champs sont requis." });
     }
-    console.log('Connexion réussie à MySQL !');
-  });
 
-  //middleware 
-  app.use(bodyparser.json());
-  app.use(express.static('public'));
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  //Route pour enregistrer les donnees
-  app.post('/api/etudiant',(req,res)=>{
-    const{matricule,prenom,nom,filiere,niveau}=req.body;
-    const sql = 'INSERT INTO etudiant(matricule, prenom, nom, filiere, niveau) VALUES(?,?,?,?,?)';
-    con.query(sql,[matricule,prenom,nom,filiere,niveau],(error,results)=>{
-        if (error){
-            return res.status(500).send(error);
+    const sql = "INSERT INTO users (prenom, nom, email, password, role) VALUES (?, ?, ?, ?, ?)";
+    db.query(sql, [prenom, nom, email, hashedPassword, role], (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Erreur serveur" });
         }
-        res.status(200).json({message:'Enregistrement effectuee avec succees', results});
+        res.status(201).json({ message: "Utilisateur enregistré avec succès." });
     });
+});
 
-  });
-  //Route principale
-  app.get('/',(req,res)=>{
-    res.sendFile(path.join(__dirname,'public',userForm.html));
-  });
+// Connexion
+app.post("/api/login", (req, res) => {
+    const { email, password } = req.body;
 
+    const sql = "SELECT * FROM users WHERE email = ?";
+    db.query(sql, [email], async (err, results) => {
+        if (err) return res.status(500).json({ message: "Erreur serveur" });
+        if (results.length === 0) return res.status(401).json({ message: "Utilisateur non trouvé." });
 
-  //Demarrage du serveur
-  app.listen(port,()=>{
-    console.log(`serveur en cours d execussion sur http://localhost:${port}`);
-  });
+        const user = results[0];
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatch) {
+            return res.status(401).json({ message: "Mot de passe incorrect." });
+        }
+
+        res.status(200).json({ message: "Connexion réussie.", user });
+    });
+});
+
+// Gestion des utilisateurs (admin uniquement)
+
+// Récupérer tous les utilisateurs
+app.get("/api/admin/users", (req, res) => {
+    const sql = "SELECT id, prenom, nom, email, role FROM users";
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ message: "Erreur serveur" });
+        res.status(200).json(results);
+    });
+});
+
+// Ajouter un utilisateur
+app.post("/api/admin/users", async (req, res) => {
+    const { prenom, nom, email, role, password } = req.body;
+    if (!prenom || !nom || !email || !password || !role) {
+        return res.status(400).json({ message: "Tous les champs sont requis." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const sql = "INSERT INTO users (prenom, nom, email, password, role) VALUES (?, ?, ?, ?, ?)";
+    db.query(sql, [prenom, nom, email, hashedPassword, role], (err) => {
+        if (err) return res.status(500).json({ message: "Erreur serveur" });
+        res.status(201).json({ message: "Utilisateur ajouté avec succès." });
+    });
+});
+
+// Modifier un utilisateur
+app.put("/api/admin/users/:id", (req, res) => {
+    const { id } = req.params;
+    const { prenom, nom, email, role } = req.body;
+
+    const sql = "UPDATE users SET prenom = ?, nom = ?, email = ?, role = ? WHERE id = ?";
+    db.query(sql, [prenom, nom, email, role, id], (err) => {
+        if (err) return res.status(500).json({ message: "Erreur serveur" });
+        res.status(200).json({ message: "Utilisateur mis à jour." });
+    });
+});
+
+// Supprimer un utilisateur
+app.delete("/api/admin/users/:id", (req, res) => {
+    const { id } = req.params;
+
+    const sql = "DELETE FROM users WHERE id = ?";
+    db.query(sql, [id], (err) => {
+        if (err) return res.status(500).json({ message: "Erreur serveur" });
+        res.status(200).json({ message: "Utilisateur supprimé." });
+    });
+});
+
+// Modification des infos personnelles (utilisateur)
+app.put("/api/user/update", (req, res) => {
+    const { id, prenom, nom, email } = req.body;
+
+    const sql = "UPDATE users SET prenom = ?, nom = ?, email = ? WHERE id = ?";
+    db.query(sql, [prenom, nom, email, id], (err) => {
+        if (err) return res.status(500).json({ message: "Erreur serveur" });
+        res.status(200).json({ message: "Informations mises à jour." });
+    });
+});
+
+// Lancement du serveur
+app.listen(PORT, () => {
+    console.log(`Serveur démarré sur http://localhost:${PORT}`);
+});
