@@ -7,7 +7,7 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
-// Configuration de la base de données
+
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -15,24 +15,24 @@ const db = mysql.createConnection({
     database: "gestion_utilisateurs",
 });
 
-// Connexion à la base de données
+
 db.connect((err) => {
     if (err) throw err;
     console.log("Connecté à la base de données MySQL");
 });
 
-// Middleware
+
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public"))); // Servir les fichiers statiques
 
-// Route principale
+
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
-// Routes API
 
-// Inscription
+
+
 app.post("/api/register", async (req, res) => {
     const { prenom, nom, email, password, role = "user" } = req.body;
     if (!prenom || !nom || !email || !password) {
@@ -51,7 +51,7 @@ app.post("/api/register", async (req, res) => {
     });
 });
 
-// Connexion
+
 app.post("/api/login", (req, res) => {
     const { email, password } = req.body;
 
@@ -70,9 +70,7 @@ app.post("/api/login", (req, res) => {
     });
 });
 
-// Gestion des utilisateurs (admin uniquement)
 
-// Récupérer tous les utilisateurs
 app.get("/api/admin/users", (req, res) => {
     const sql = "SELECT id, prenom, nom, email, role FROM users";
     db.query(sql, (err, results) => {
@@ -81,7 +79,7 @@ app.get("/api/admin/users", (req, res) => {
     });
 });
 
-// Ajouter un utilisateur
+
 app.post("/api/admin/users", async (req, res) => {
     const { prenom, nom, email, role, password } = req.body;
     if (!prenom || !nom || !email || !password || !role) {
@@ -96,7 +94,7 @@ app.post("/api/admin/users", async (req, res) => {
     });
 });
 
-// Modifier un utilisateur
+
 app.put("/api/admin/users/:id", (req, res) => {
     const { id } = req.params;
     const { prenom, nom, email, role } = req.body;
@@ -108,7 +106,7 @@ app.put("/api/admin/users/:id", (req, res) => {
     });
 });
 
-// Supprimer un utilisateur
+
 app.delete("/api/admin/users/:id", (req, res) => {
     const { id } = req.params;
 
@@ -119,7 +117,7 @@ app.delete("/api/admin/users/:id", (req, res) => {
     });
 });
 
-// Modification des infos personnelles (utilisateur)
+
 app.put("/api/user/update", (req, res) => {
     const { id, prenom, nom, email } = req.body;
 
@@ -130,7 +128,7 @@ app.put("/api/user/update", (req, res) => {
     });
 });
 
-// Lancement du serveur
+
 app.listen(PORT, () => {
     console.log(`Serveur démarré sur http://localhost:${PORT}`);
 });

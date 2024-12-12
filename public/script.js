@@ -1,8 +1,6 @@
 const API_BASE_URL = "http://localhost:3000/api";
 
-/**
- * Fonction générique pour faire des requêtes à l'API
- */
+
 async function fetchAPI(endpoint, method = "GET", body = null) {
     const options = {
         method,
@@ -16,9 +14,6 @@ async function fetchAPI(endpoint, method = "GET", body = null) {
     return response.json();
 }
 
-/**
- * Gestion du formulaire d'inscription
- */
 document.getElementById("form-register")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -37,9 +32,7 @@ document.getElementById("form-register")?.addEventListener("submit", async (e) =
     }
 });
 
-/**
- * Gestion du formulaire de connexion
- */
+
 document.getElementById("form-login")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -67,17 +60,13 @@ document.getElementById("form-login")?.addEventListener("submit", async (e) => {
     }
 });
 
-/**
- * Déconnexion
- */
+
 function logout() {
     localStorage.removeItem("user");
     window.location.href = "login.html";
 }
 
-/**
- * Chargement des utilisateurs pour la page admin
- */
+
 async function loadUsers() {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user || user.role !== "admin") {
@@ -111,9 +100,7 @@ async function loadUsers() {
     }
 }
 
-/**
- * Suppression d'un utilisateur
- */
+
 async function deleteUser(id) {
     if (confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
         try {
@@ -127,9 +114,7 @@ async function deleteUser(id) {
     }
 }
 
-/**
- * Modification d'un utilisateur
- */
+
 function editUser(id, prenom, nom, email, role) {
     const prenomField = document.getElementById("prenom");
     const nomField = document.getElementById("nom");
@@ -163,9 +148,7 @@ function editUser(id, prenom, nom, email, role) {
     };
 }
 
-/**
- * Gestion de l'ajout d'un nouvel utilisateur
- */
+
 document.getElementById("form-add-user")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -177,8 +160,8 @@ document.getElementById("form-add-user")?.addEventListener("submit", async (e) =
     try {
         const result = await fetchAPI("/admin/users", "POST", { prenom, nom, email, role, password: "defaultpassword" });
         alert(result.message || "Utilisateur ajouté !");
-        loadUsers(); // Recharge les utilisateurs
-        document.getElementById("form-add-user").reset(); // Réinitialise le formulaire
+        loadUsers();
+        document.getElementById("form-add-user").reset(); 
     } catch (error) {
         console.error("Erreur lors de l'ajout :", error);
         alert("Une erreur est survenue lors de l'ajout.");
@@ -186,9 +169,7 @@ document.getElementById("form-add-user")?.addEventListener("submit", async (e) =
 });
 
 
-/**
- * Mise à jour du profil utilisateur
- */
+
 document.getElementById("form-update-profile")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -213,7 +194,6 @@ document.getElementById("form-update-profile")?.addEventListener("submit", async
     }
 });
 
-// Charger les utilisateurs sur la page admin
 if (window.location.pathname.endsWith("admin.html")) {
     loadUsers();
 }

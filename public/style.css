@@ -1,56 +1,65 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
-}
-
-.container {
-  width: 80%;
+/* From Uiverse.io by alexruix */ 
+.loader {
+  position: relative;
+  width: 120px;
+  height: 90px;
   margin: 0 auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin-top: 50px;
 }
 
-h1 {
-  text-align: center;
+.loader:before {
+  content: "";
+  position: absolute;
+  bottom: 30px;
+  left: 50px;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  background: #0dcaf0;
+  animation: loading-bounce 0.5s ease-in-out infinite alternate;
 }
 
-form {
-  margin: 20px 0;
+.loader:after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 7px;
+  width: 45px;
+  border-radius: 4px;
+  box-shadow: 0 5px 0 #0d6efd, -35px 50px 0 #0d6efd, -70px 95px 0 #0d6efd;
+  animation: loading-step 1s ease-in-out infinite;
 }
 
-input, select, button {
-  display: block;
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+@keyframes loading-bounce {
+  0% {
+    transform: scale(1, 0.7);
+  }
+
+  40% {
+    transform: scale(0.8, 1.2);
+  }
+
+  60% {
+    transform: scale(1, 1);
+  }
+
+  100% {
+    bottom: 140px;
+  }
 }
 
-button {
-  background-color: #28a745;
-  color: white;
-  cursor: pointer;
-}
+@keyframes loading-step {
+  0% {
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0),
+            0 10px 0 #0d6efd,
+            -35px 50px 0 #0d6efd,
+            -70px 90px 0 #0d6efd;
+  }
 
-button:hover {
-  background-color: #218838;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-table th, table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
+  100% {
+    box-shadow: 0 10px 0 #0d6efd,
+            -35px 50px 0 #0d6efd,
+            -70px 90px 0 #0d6efd,
+            -70px 90px 0 rgba(0, 0, 0, 0);
+  }
 }
